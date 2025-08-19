@@ -994,7 +994,13 @@
 			element: element,
 			extensions: [
 				StarterKit.configure({
-					link: link
+					link: link,
+					// Disable extensions that are being replaced
+					codeBlock: false,  // Using CodeBlockLowlight instead
+					bulletList: false, // Using ListKit instead
+					orderedList: false, // Using ListKit instead
+					listItem: false,   // Using ListKit instead
+					listKeymap: false  // Using ListKit instead
 				}),
 				Placeholder.configure({ placeholder }),
 				SelectionDecoration,
@@ -1020,9 +1026,13 @@
 					}
 				}),
 				CharacterCount.configure({}),
-				YouTubeLinkExtension.configure({
-					onTogglePreview: handleYouTubePreviewToggle
-				}),
+				// Only enable YouTube extension if we're not in the notes context
+				// Notes have their own YouTubePreviewHandler component
+				...(id && id.startsWith('note-') ? [] : [
+					YouTubeLinkExtension.configure({
+						onTogglePreview: handleYouTubePreviewToggle
+					})
+				]),
 				...(image ? [Image] : []),
 				...(fileHandler
 					? [

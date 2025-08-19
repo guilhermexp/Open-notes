@@ -51,7 +51,8 @@ export const YouTubeLinkExtension = Extension.create({
 								
 								while ((match = regex.exec(node.text)) !== null) {
 									const from = pos + match.index;
-									const to = from + match[0].length;
+									const matchedUrl = match[0];
+									const to = from + matchedUrl.length;
 									const videoId = match[1];
 									
 									// Create a decoration for the eye button
@@ -59,7 +60,7 @@ export const YouTubeLinkExtension = Extension.create({
 										const button = document.createElement('button');
 										button.className = 'youtube-preview-button inline-flex items-center justify-center ml-1 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors';
 										button.setAttribute('data-video-id', videoId);
-										button.setAttribute('data-video-url', match[0]);
+										button.setAttribute('data-video-url', matchedUrl);
 										button.title = 'Show/Hide YouTube Preview';
 										
 										// Eye icon SVG
@@ -75,7 +76,7 @@ export const YouTubeLinkExtension = Extension.create({
 											e.preventDefault();
 											e.stopPropagation();
 											if (extension.options.onTogglePreview) {
-												extension.options.onTogglePreview(videoId, match[0], from, to);
+												extension.options.onTogglePreview(videoId, matchedUrl, from, to);
 											}
 										});
 										

@@ -4,8 +4,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "./start.sh",
-		"dev:frontend-only": "npm run pyodide:fetch && vite dev --host",
-		"dev:5050": "npm run pyodide:fetch && vite dev --port 5050",
+		"dev:frontend-only": "npm run pyodide:fetch && vite dev --host --port 8357",
+		"dev:backend-only": "cd backend && uvicorn open_webui.main:app --reload --port 36950 --host 0.0.0.0",
 		"build": "npm run pyodide:fetch && vite build",
 		"build:watch": "npm run pyodide:fetch && vite build --watch",
 		"preview": "vite preview",

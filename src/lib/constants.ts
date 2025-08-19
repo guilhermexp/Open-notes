@@ -1,10 +1,12 @@
 import { browser, dev } from '$app/environment';
+import { PUBLIC_API_BASE_URL } from '$env/static/public';
 // import { version } from '../../package.json';
 
 export const APP_NAME = 'Open WebUI';
 
-export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8000` : ``) : '';
-export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
+// Use PUBLIC_API_BASE_URL from .env if available, otherwise use the default
+export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:36950` : ``) : '';
+export const WEBUI_BASE_URL = PUBLIC_API_BASE_URL || (browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``);
 export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
 
 export const OLLAMA_API_BASE_URL = `${WEBUI_BASE_URL}/ollama`;

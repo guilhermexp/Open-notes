@@ -16,8 +16,26 @@ export WEBUI_AUTH=true
 # Start backend server
 echo "Starting backend server on port 36950..."
 cd backend
+
+# Check if venv exists, if not create it
+if [ ! -d "venv" ]; then
+    echo "Creating Python virtual environment..."
+    python3 -m venv venv
+fi
+
+# Activate venv and install requirements if needed
 source venv/bin/activate
-python -m uvicorn open_webui.main:app --port 36950 --host 0.0.0.0 --forwarded-allow-ips '*' --reload &
+
+# Check if uvicorn is installed
+if ! python3 -c "import uvicorn" 2>/dev/null; then
+    echo "Installing Python dependencies (this may take a few minutes on first run)..."
+    pip install --upgrade pip
+    pip install uvicorn fastapi
+    # Install other minimal requirements
+    pip install -r requirements-minimal.txt 2>/dev/null || true
+fi
+
+python3 -m uvicorn open_webui.main:app --port 36950 --host 0.0.0.0 --forwarded-allow-ips '*' --reload &
 BACKEND_PID=$!
 cd ..
 

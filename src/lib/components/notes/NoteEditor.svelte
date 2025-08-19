@@ -295,8 +295,21 @@ ${content}
 	};
 
 	async function enhanceNoteHandler() {
-		if (selectedModelId === '') {
-			toast.error($i18n.t('Please select a model.'));
+		console.log('[Enhance] Starting enhance note handler');
+		
+		// Auto-select model if none selected
+		if (!selectedModelId || selectedModelId === '') {
+			console.log('[Enhance] No model selected, auto-selecting...');
+			if ($models && $models.length > 0) {
+				// Try to find a non-hidden model
+				const availableModel = $models.find(m => !(m?.info?.meta?.hidden ?? false));
+				selectedModelId = availableModel?.id || $models[0].id;
+				console.log('[Enhance] Auto-selected model:', selectedModelId);
+			}
+		}
+		
+		if (!selectedModelId || selectedModelId === '') {
+			toast.error($i18n.t('No models available. Please configure a model.'));
 			return;
 		}
 
@@ -305,17 +318,144 @@ ${content}
 			.find((model) => model.id === selectedModelId);
 
 		if (!model) {
+			console.log('[Enhance] Model not found:', selectedModelId);
+			toast.error($i18n.t('Selected model not available.'));
 			selectedModelId = '';
 			return;
 		}
 
+		console.log('[Enhance] Using model:', model.id);
 		editing = true;
+		
+		// Extract URLs from content and process them
+		await extractAndProcessUrls();
+		
+		// Then enhance with the extracted content
 		await enhanceCompletionHandler(model);
 		editing = false;
 
 		onEdited();
 		versionIdx = null;
 	}
+
+	const extractAndProcessUrls = async () => {
+		console.log('[Enhance] Extracting URLs from content...');
+		const content = note.data.content.md || '';
+		
+		// Extract all types of URLs
+		const urlRegex = /(https?:\/\/[^\s]+)/gi;
+		const urls = content.match(urlRegex) || [];
+		
+		console.log('[Enhance] Found URLs:', urls);
+		
+		// Separate URLs by type
+		const youtubeUrls = urls.filter(url => 
+			url.includes('youtube.com') || url.includes('youtu.be')
+		);
+		const instagramUrls = urls.filter(url => 
+			url.includes('instagram.com')
+		);
+		const otherUrls = urls.filter(url => 
+			!url.includes('youtube.com') && 
+			!url.includes('youtu.be') && 
+			!url.includes('instagram.com')
+		);
+		
+		console.log('[Enhance] YouTube URLs:', youtubeUrls);
+		console.log('[Enhance] Instagram URLs:', instagramUrls);
+		console.log('[Enhance] Other URLs:', otherUrls);
+		
+		// Process YouTube URLs
+		for (const url of youtubeUrls) {
+			try {
+				console.log('[Enhance] Processing YouTube URL:', url);
+				const res = await processYouTubeUrl(url);
+				if (res && res.content) {
+					// Add extracted content as a file-like object
+					const fileItem = {
+						type: 'url',
+						name: `YouTube: ${url}`,
+						file: {
+							data: {
+								content: res.content
+							}
+						}
+					};
+					files = [...files, fileItem];
+				}
+			} catch (error) {
+				console.error('[Enhance] Error processing YouTube URL:', error);
+			}
+		}
+		
+		// Process other web URLs
+		for (const url of otherUrls) {
+			try {
+				console.log('[Enhance] Processing web URL:', url);
+				const res = await processWebUrl(url);
+				if (res && res.content) {
+					const fileItem = {
+						type: 'url',
+						name: `Web: ${url}`,
+						file: {
+							data: {
+								content: res.content
+							}
+						}
+					};
+					files = [...files, fileItem];
+				}
+			} catch (error) {
+				console.error('[Enhance] Error processing web URL:', error);
+			}
+		}
+		
+		console.log('[Enhance] Extracted content from URLs, total files:', files.length);
+	};
+	
+	const processYouTubeUrl = async (url) => {
+		// Use the existing YouTube processing endpoint
+		const res = await fetch(`${WEBUI_API_BASE_URL}/retrieval/process/youtube`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${localStorage.token}`
+			},
+			body: JSON.stringify({
+				url: url,
+				collection_name: '' // Let backend generate a name
+			})
+		});
+		
+		if (res.ok) {
+			const data = await res.json();
+			console.log('[Enhance] YouTube data extracted:', data);
+			return data;
+		}
+		return null;
+	};
+	
+	const processWebUrl = async (url) => {
+		// Use the existing web processing endpoint
+		const res = await fetch(`${WEBUI_API_BASE_URL}/retrieval/process/web`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${localStorage.token}`
+			},
+			body: JSON.stringify({
+				url: url,
+				collection_name: '' // Let backend generate a name
+			})
+		});
+		
+		if (res.ok) {
+			const data = await res.json();
+			console.log('[Enhance] Web data extracted:', data);
+			return data;
+		}
+		return null;
+	};
 
 	const stopResponseHandler = async () => {
 		stopResponseFlag = true;
@@ -668,6 +808,9 @@ ${content}
 	};
 
 	const enhanceCompletionHandler = async (model) => {
+		console.log('[Enhance] Starting completion handler with model:', model.id);
+		console.log('[Enhance] Number of files/contexts:', files.length);
+		
 		stopResponseFlag = false;
 		let enhancedContent = {
 			json: null,
@@ -675,7 +818,7 @@ ${content}
 			md: ''
 		};
 
-		const systemPrompt = `Enhance existing notes using additional context provided from audio transcription or uploaded file content in the content's primary language. Your task is to make the notes more useful and comprehensive by incorporating relevant information from the provided context.
+		const systemPrompt = `Enhance existing notes using additional context provided from URLs, audio transcription or uploaded file content in the content's primary language. Your task is to make the notes more useful and comprehensive by incorporating relevant information from the provided context.
 
 Input will be provided within <notes> and <context> XML tags, providing a structure for the existing notes and context respectively.
 
@@ -1323,7 +1466,10 @@ Provide the enhanced notes in markdown format. Use markdown syntax for headings,
 						/>
 						
 						{#if noteContentContainer && !editing && versionIdx === null}
-							<YouTubePreviewHandler container={noteContentContainer} />
+							{@const showYouTube = true}
+							{#if showYouTube}
+								<YouTubePreviewHandler container={noteContentContainer} />
+							{/if}
 						{/if}
 					</div>
 				</div>
