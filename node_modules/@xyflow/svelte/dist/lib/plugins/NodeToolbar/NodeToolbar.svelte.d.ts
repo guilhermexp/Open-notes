@@ -1,0 +1,18 @@
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { SvelteComponentTyped } from "svelte";
+import type { NodeToolbarProps } from './types';
+declare const __propDef: {
+    props: NodeToolbarProps;
+    events: {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {
+        default: {};
+    };
+};
+type NodeToolbarProps_ = typeof __propDef.props;
+export { NodeToolbarProps_ as NodeToolbarProps };
+export type NodeToolbarEvents = typeof __propDef.events;
+export type NodeToolbarSlots = typeof __propDef.slots;
+export default class NodeToolbar extends SvelteComponentTyped<NodeToolbarProps_, NodeToolbarEvents, NodeToolbarSlots> {
+}

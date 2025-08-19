@@ -1,0 +1,16 @@
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { SvelteComponentTyped } from "svelte";
+import type { KeyHandlerProps } from './types';
+declare const __propDef: {
+    props: KeyHandlerProps;
+    events: {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {};
+};
+type KeyHandlerProps_ = typeof __propDef.props;
+export { KeyHandlerProps_ as KeyHandlerProps };
+export type KeyHandlerEvents = typeof __propDef.events;
+export type KeyHandlerSlots = typeof __propDef.slots;
+export default class KeyHandler extends SvelteComponentTyped<KeyHandlerProps_, KeyHandlerEvents, KeyHandlerSlots> {
+}

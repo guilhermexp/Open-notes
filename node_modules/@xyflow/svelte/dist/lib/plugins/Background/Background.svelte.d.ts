@@ -1,0 +1,16 @@
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { SvelteComponentTyped } from "svelte";
+import { type BackgroundProps } from './types';
+declare const __propDef: {
+    props: BackgroundProps;
+    events: {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {};
+};
+type BackgroundProps_ = typeof __propDef.props;
+export { BackgroundProps_ as BackgroundProps };
+export type BackgroundEvents = typeof __propDef.events;
+export type BackgroundSlots = typeof __propDef.slots;
+export default class Background extends SvelteComponentTyped<BackgroundProps_, BackgroundEvents, BackgroundSlots> {
+}

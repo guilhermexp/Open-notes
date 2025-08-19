@@ -1,0 +1,33 @@
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { SvelteComponentTyped } from "svelte";
+import type { EdgeLayouted, Edge } from '../../types';
+declare const __propDef: {
+    props: EdgeLayouted;
+    events: {
+        edgeclick: CustomEvent<{
+            edge: Edge;
+            event: MouseEvent | TouchEvent;
+        }>;
+        edgecontextmenu: CustomEvent<{
+            edge: Edge;
+            event: MouseEvent;
+        }>;
+        edgemouseenter: CustomEvent<{
+            edge: Edge;
+            event: MouseEvent;
+        }>;
+        edgemouseleave: CustomEvent<{
+            edge: Edge;
+            event: MouseEvent;
+        }>;
+    } & {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {};
+};
+export type EdgeWrapperProps = typeof __propDef.props;
+export type EdgeWrapperEvents = typeof __propDef.events;
+export type EdgeWrapperSlots = typeof __propDef.slots;
+export default class EdgeWrapper extends SvelteComponentTyped<EdgeWrapperProps, EdgeWrapperEvents, EdgeWrapperSlots> {
+}
+export {};

@@ -1,0 +1,16 @@
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { SvelteComponentTyped } from "svelte";
+import type { AttributionProps } from './types';
+declare const __propDef: {
+    props: AttributionProps;
+    events: {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {};
+};
+type AttributionProps_ = typeof __propDef.props;
+export { AttributionProps_ as AttributionProps };
+export type AttributionEvents = typeof __propDef.events;
+export type AttributionSlots = typeof __propDef.slots;
+export default class Attribution extends SvelteComponentTyped<AttributionProps_, AttributionEvents, AttributionSlots> {
+}

@@ -1,0 +1,16 @@
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { SvelteComponentTyped } from "svelte";
+import type { BaseEdgeProps } from './types';
+declare const __propDef: {
+    props: BaseEdgeProps;
+    events: {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {};
+};
+type BaseEdgeProps_ = typeof __propDef.props;
+export { BaseEdgeProps_ as BaseEdgeProps };
+export type BaseEdgeEvents = typeof __propDef.events;
+export type BaseEdgeSlots = typeof __propDef.slots;
+export default class BaseEdge extends SvelteComponentTyped<BaseEdgeProps_, BaseEdgeEvents, BaseEdgeSlots> {
+}

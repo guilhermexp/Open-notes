@@ -1,0 +1,17 @@
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { SvelteComponentTyped } from "svelte";
+declare const __propDef: {
+    props: Record<string, never>;
+    events: {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {
+        default: {};
+    };
+};
+export type EdgeLabelRendererProps = typeof __propDef.props;
+export type EdgeLabelRendererEvents = typeof __propDef.events;
+export type EdgeLabelRendererSlots = typeof __propDef.slots;
+export default class EdgeLabelRenderer extends SvelteComponentTyped<EdgeLabelRendererProps, EdgeLabelRendererEvents, EdgeLabelRendererSlots> {
+}
+export {};

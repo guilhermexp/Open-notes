@@ -1,0 +1,21 @@
+/// <reference types="svelte" />
+/// <reference types=".pnpm/svelte@4.2.1/node_modules/svelte" />
+import { type Unsubscriber, type Subscriber, type Updater, type Writable } from 'svelte/store';
+import { type Viewport, type PanZoomInstance, type ConnectionLookup, type EdgeLookup, type NodeLookup, type ParentLookup, type NodeOrigin, type CoordinateExtent } from '@xyflow/system';
+import type { DefaultEdgeOptions, DefaultNodeOptions, Edge, InternalNode, Node } from '../types';
+export declare function syncNodeStores(nodesStore: ReturnType<typeof createNodesStore>, userNodesStore: Writable<Node[]>): void;
+export declare function syncEdgeStores(edgesStore: ReturnType<typeof createEdgesStore>, userEdgesStore: Writable<Edge[]>): void;
+export declare const syncViewportStores: (panZoomStore: Writable<PanZoomInstance | null>, viewportStore: Writable<Viewport>, userViewportStore?: Writable<Viewport>) => void;
+export type NodeStoreOptions = {
+    elevateNodesOnSelect?: boolean;
+};
+export declare const createNodesStore: (nodes: Node[], nodeLookup: NodeLookup<InternalNode>, parentLookup: ParentLookup<InternalNode>, nodeOrigin?: NodeOrigin, nodeExtent?: CoordinateExtent) => {
+    subscribe: (this: void, run: Subscriber<Node[]>) => Unsubscriber;
+    update: (this: void, updater: Updater<Node[]>) => void;
+    set: (this: void, value: Node[]) => Node[];
+    setDefaultOptions: (opts: DefaultNodeOptions) => void;
+    setOptions: (opts: NodeStoreOptions) => void;
+};
+export declare const createEdgesStore: (edges: Edge[], connectionLookup: ConnectionLookup, edgeLookup: EdgeLookup<Edge>, defaultOptions?: DefaultEdgeOptions) => Writable<Edge[]> & {
+    setDefaultOptions: (opts: DefaultEdgeOptions) => void;
+};
