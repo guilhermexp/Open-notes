@@ -5,6 +5,7 @@
 	export let container: HTMLElement;
 	
 	let youtubePreviews: Map<string, boolean> = new Map();
+	let isProcessing = false;
 	
 	function extractYouTubeId(url: string): string | null {
 		const patterns = [
@@ -26,6 +27,13 @@
 			console.log('[YouTubePreviewHandler] Container not available');
 			return;
 		}
+		
+		// Prevent recursive processing
+		if (isProcessing) {
+			console.log('[YouTubePreviewHandler] Already processing, skipping');
+			return;
+		}
+		isProcessing = true;
 		
 		// Look for links in the rich text editor content
 		const editorContent = container.querySelector('.ProseMirror') || container;
@@ -179,6 +187,11 @@
 				togglePreview(videoId, previewContainer);
 			});
 		});
+		
+		// Reset processing flag after completion
+		setTimeout(() => {
+			isProcessing = false;
+		}, 100);
 	}
 	
 	function handlePreviewToggle(videoId, url, buttonElement) {
@@ -239,9 +252,19 @@
 		
 		// Watch for changes in the container
 		const observer = new MutationObserver((mutations) => {
+			// Skip if we're already processing
+			if (isProcessing) return;
+			
 			// Check if any mutation contains YouTube links
 			let hasYouTubeContent = false;
 			for (const mutation of mutations) {
+				// Skip mutations caused by our own modifications
+				if (mutation.target.classList?.contains('youtube-preview-toggle') ||
+				    mutation.target.classList?.contains('youtube-preview-container') ||
+				    mutation.target.closest?.('.youtube-preview-container')) {
+					continue;
+				}
+				
 				if (mutation.type === 'childList' || mutation.type === 'characterData') {
 					const target = mutation.target;
 					const text = target.textContent || '';
@@ -257,7 +280,7 @@
 				clearTimeout(window.youtubeProcessTimeout);
 				window.youtubeProcessTimeout = setTimeout(() => {
 					processYouTubeLinks();
-				}, 50);
+				}, 200); // Increased timeout for better debouncing
 			}
 		});
 		

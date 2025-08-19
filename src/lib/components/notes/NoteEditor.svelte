@@ -93,7 +93,7 @@
 	import Cog6 from '../icons/Cog6.svelte';
 	import AiMenu from './AIMenu.svelte';
 	import AdjustmentsHorizontalOutline from '../icons/AdjustmentsHorizontalOutline.svelte';
-	import YouTubePreviewHandler from './YouTubePreviewHandler.svelte';
+	import YouTubePreviewHandler from './YouTubePreviewHandlerSimple.svelte';
 
 	export let id: null | string = null;
 
@@ -297,6 +297,12 @@ ${content}
 	async function enhanceNoteHandler() {
 		console.log('[Enhance] Starting enhance note handler');
 		
+		// Check if already editing to prevent multiple calls
+		if (editing) {
+			console.log('[Enhance] Already editing, skipping');
+			return;
+		}
+		
 		// Auto-select model if none selected
 		if (!selectedModelId || selectedModelId === '') {
 			console.log('[Enhance] No model selected, auto-selecting...');
@@ -328,13 +334,17 @@ ${content}
 		editing = true;
 		
 		// Extract URLs from content and process them
-		await extractAndProcessUrls();
+		// Only process if we have content
+		if (note.data.content.md && note.data.content.md.trim()) {
+			await extractAndProcessUrls();
+		}
 		
 		// Then enhance with the extracted content
 		await enhanceCompletionHandler(model);
 		editing = false;
 
-		onEdited();
+		// Don't call onEdited() here as it causes unnecessary editor updates
+		// The content is already updated in enhanceCompletionHandler
 		versionIdx = null;
 	}
 
@@ -365,7 +375,9 @@ ${content}
 		console.log('[Enhance] Instagram URLs:', instagramUrls);
 		console.log('[Enhance] Other URLs:', otherUrls);
 		
-		// Process YouTube URLs
+		// Process YouTube URLs - TEMPORARILY DISABLED due to auth issues
+		// TODO: Fix authentication for YouTube processing endpoint
+		/*
 		for (const url of youtubeUrls) {
 			try {
 				console.log('[Enhance] Processing YouTube URL:', url);
@@ -387,6 +399,7 @@ ${content}
 				console.error('[Enhance] Error processing YouTube URL:', error);
 			}
 		}
+		*/
 		
 		// Process other web URLs
 		for (const url of otherUrls) {
@@ -890,9 +903,8 @@ Provide the enhanced notes in markdown format. Use markdown syntax for headings,
 										enhancedContent.md += choice.delta.content;
 										enhancedContent.html = marked.parse(enhancedContent.md);
 
-										note.data.content.md = enhancedContent.md;
-										note.data.content.html = enhancedContent.html;
-										note.data.content.json = null;
+										// Don't update note content during streaming to prevent auto-writing
+										// The content will be set once at the end
 
 										scrollToBottom();
 									}
@@ -904,6 +916,18 @@ Provide the enhanced notes in markdown format. Use markdown syntax for headings,
 					console.log(error);
 				}
 			}
+		}
+
+		// Update content only once at the end of streaming
+		if (enhancedContent.md && editor) {
+			// Update the editor directly instead of updating the bound values
+			// This prevents reactive loops and auto-writing issues
+			editor.commands.setContent(enhancedContent.html);
+			
+			// Update the note data after editor is updated
+			note.data.content.md = enhancedContent.md;
+			note.data.content.html = enhancedContent.html;
+			// Keep json as is to avoid reactive updates
 		}
 
 		streaming = false;
@@ -1605,7 +1629,6 @@ Provide the enhanced notes in markdown format. Use markdown syntax for headings,
 				bind:streaming
 				bind:stopResponseFlag
 				{editor}
-				{inputElement}
 				{selectedContent}
 				{files}
 				onInsert={insertHandler}

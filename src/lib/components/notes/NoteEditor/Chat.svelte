@@ -349,7 +349,7 @@ Based on the user's instruction, update and enhance the existing notes or select
 				content={$i18n.t(
 					'This feature is experimental and may be modified or discontinued without notice.'
 				)}
-				position="top"
+				placement="top"
 				className="inline-block"
 			>
 				<span class="text-gray-500 text-sm">({$i18n.t('Experimental')})</span>

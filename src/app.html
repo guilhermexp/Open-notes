@@ -2,11 +2,6 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/png" href="/static/favicon.png" />
-		<link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
-		<link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-		<link rel="shortcut icon" href="/static/favicon.ico" />
-		<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
 		<meta name="apple-mobile-web-app-title" content="Open WebUI" />
 
 		<link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
@@ -78,16 +73,7 @@
 				});
 				const isDarkMode = document.documentElement.classList.contains('dark');
 
-				const logo = document.createElement('img');
-				logo.id = 'logo';
-				logo.style =
-					'position: absolute; width: auto; height: 6rem; top: 44%; left: 50%; transform: translateX(-50%); display:block;';
-				logo.src = isDarkMode ? '/static/splash-dark.png' : '/static/splash.png';
-
-				document.addEventListener('DOMContentLoaded', function () {
-					const splash = document.getElementById('splash-screen');
-					if (splash) splash.prepend(logo);
-				});
+				// Logo removido
 			})();
 		</script>
 
@@ -123,12 +109,7 @@
 					align-items: center;
 				"
 			>
-				<img
-					id="logo-her"
-					style="width: auto; height: 13rem"
-					src="/static/splash.png"
-					class="animate-pulse-fast"
-				/>
+				<!-- Logo removido -->
 
 				<div style="position: relative; width: 24rem; margin-top: 0.5rem">
 					<div
